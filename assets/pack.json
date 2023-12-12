@@ -58,6 +58,21 @@
       },
       {
         "type": "image",
+        "key": "buttonWinners",
+        "url": "./assets/images/buttonWinners.png"
+      },
+      {
+        "type": "image",
+        "key": "settingsButton",
+        "url": "./assets/images/settingsButton.png"
+      },
+      {
+        "type": "image",
+        "key": "confirmButton",
+        "url": "./assets/images/confirmButton.png"
+      },
+      {
+        "type": "image",
         "key": "buttonMenu",
         "url": "./assets/images/buttonMenu.png"
       },
@@ -89,7 +104,7 @@
       {
         "type": "image",
         "key": "cellFree",
-        "url": "./assets/images/cellFree.jpg"
+        "url": "./assets/images/cellFree.png"
       },
       {
         "type": "image",
@@ -104,22 +119,52 @@
       {
         "type": "image",
         "key": "cellX",
-        "url": "./assets/images/cellX.jpg"
+        "url": "./assets/images/cellX.png"
       },
       {
         "type": "image",
         "key": "cellZero",
-        "url": "./assets/images/cellZero.jpg"
+        "url": "./assets/images/cellZero.png"
       },
       {
         "type": "image",
         "key": "cellXHighlighted",
-        "url": "./assets/images/cellXHighlighted.jpg"
+        "url": "./assets/images/cellXHighlighted.png"
       },
       {
         "type": "image",
         "key": "cellZeroHighlighted",
-        "url": "./assets/images/cellZeroHighlighted.jpg"
+        "url": "./assets/images/cellZeroHighlighted.png"
+      },
+      {
+        "type": "image",
+        "key": "timeContainer",
+        "url": "./assets/images/timeContainer.png"
+      },
+      {
+        "type": "image",
+        "key": "timeBar",
+        "url": "./assets/images/timeBar.png"
+      },
+      {
+        "type": "audio",
+        "key": "theme",
+        "url": "./assets/sounds/theme.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "complete",
+        "url": "./assets/sounds/complete.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "timeout",
+        "url": "./assets/sounds/timeout.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "card",
+        "url": "./assets/sounds/card.mp3"
       }
     ]
   }

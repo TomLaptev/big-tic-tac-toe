@@ -15,4 +15,14 @@ body{
     font-family: "NautilusPompilius";
    position: absolute; 
     left: -100px;
-}
+} 
+/* .fontPreload1 {
+    font-family: "Brusnika";
+   position: absolute; 
+    left: -101px;
+}  */
+.fontPreload1 {
+    font-family: "TOYZ";
+   position: absolute; 
+    left: -101px;
+} 

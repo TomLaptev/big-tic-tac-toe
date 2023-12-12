@@ -1,4 +1,4 @@
-import { GameConfig, Source } from '../GameConfig';
+import { Source } from '../GameConfig';
 import { GameScene } from '../scenes/GameScene';
 import TestKit from '../components/Test';
 import { Images } from '../utils/const';
@@ -25,6 +25,8 @@ export default class GameAlgoritm {
     bestR: number; // id выбранной ячейки
     maxAttackMadeMovesR: number;
     isFinish: boolean = false;
+    isYourMove: boolean = false;
+    isRivalMove: boolean = false;
     templX: any = templateX;
     templZero: any = templateZero;
 
@@ -34,10 +36,13 @@ export default class GameAlgoritm {
     }
 
     onCellClicked(cell: Cell) {
-        if (
+        if (cell.value == -1 &&
             !this.isFinish
         ) {
             this.scene.pointer.destroy();
+
+            this.scene.sounds.card.play();
+
             //для крестика "обесцвечиваем" предыдущий нолик
             if (this.store.length % 2 == 0) {
                 if (this.store.length > 0) {
@@ -63,8 +68,6 @@ export default class GameAlgoritm {
                 }
 
                 this.scene.add.sprite(cell.x, cell.y, Images.CELL_ZERO_HIGHLIGHTED).setOrigin(0, 0);
-                // cell.value = 0;
-                // this.cellsGA.push(cell);
                 if (this.scene.btnXWasPressed) {
                     cell.value = 0;
                     this.cellsGA.push(cell);
@@ -74,6 +77,22 @@ export default class GameAlgoritm {
                 }
             }
             this.store.push(cell);
+            //========= Определяем чей ход =================================
+
+            this.isYourMove = this.scene.btnXWasPressed && (this.store.length % 2 == 0) ||
+                this.scene.btnZeroWasPressed && (this.store.length % 2 != 0); //true
+ 
+            this.isRivalMove = this.scene.btnXWasPressed && (this.store.length % 2 != 0) ||
+                this.scene.btnZeroWasPressed && (this.store.length % 2 == 0); //true
+
+            this.scene.createTimeBar();
+            this.scene.timeMask.destroy();
+           this.scene.Timer.paused = false;
+
+            console.log(this.isYourMove)
+            console.log(this.isRivalMove)
+            //=========================================================================================
+
             this.scene.createPointer();
             if (this.store.length > 1 && !this.isFinish) {
                 this.scene.pointer.x = this.store.at(-2).x;
@@ -126,12 +145,29 @@ export default class GameAlgoritm {
                     testWinKit[i].pop();
                 }
             }
-        }
-        //====================================
 
-        if (!this.isFinish && this.scene.btnXWasPressed && this.store.length > 0) {
-            this.scene.GA.chooseFirstStepGA();
-        } else this.scene.GA.chooseStepGA();
+            //====================================
+
+            if (!this.isFinish && this.scene.btnXWasPressed && this.store.length > 0) {
+                this.scene.GA.chooseFirstStepGA();
+            } else this.scene.GA.chooseStepGA();
+
+            if (this.isFinish) {
+                if (this.scene.btnXWasPressed && symbol == Images.CELL_X_HIGHLIGHTED ||
+                    this.scene.btnZeroWasPressed && symbol == Images.CELL_ZERO_HIGHLIGHTED) {
+                    this.scene.btnXWasPressed = false;
+                    this.scene.btnZeroWasPressed = false;
+                    // this.scene.sounds.complete.play();
+
+                } else if (this.scene.btnZeroWasPressed && symbol == Images.CELL_X_HIGHLIGHTED ||
+                    this.scene.btnXWasPressed && symbol == Images.CELL_ZERO_HIGHLIGHTED) {
+                    this.scene.btnXWasPressed = false;
+                    this.scene.btnZeroWasPressed = false;
+                    //this.scene.sounds.timeout.play();
+                }
+            }
+
+        }
     }
     chooseFirstStepGA() {
         let correctionX: number = 0;
@@ -215,7 +251,7 @@ export default class GameAlgoritm {
                     if (this.cellsR[i].z > Max) {
                         Max = this.cellsR[i].z;
                         maxAttackMadeMovesR = i;
-                    } 
+                    }
                 }
             }
 
@@ -234,7 +270,6 @@ export default class GameAlgoritm {
             console.log("=============== ");
             // =====Выбор хода ====== start ===========
             if (this.store.length > 1 && this.store.at(-1).value === 1) {
-                console.log(123)
                 if (maxAttackMadeMovesR >= 0) {
                     if (
                         this.sampleGA[0].w >= this.templX[2].attackWeight || // 5!

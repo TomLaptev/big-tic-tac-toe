@@ -1,0 +1,10 @@
+{
+   "preload_0" :{
+    "files":   [
+        {"type": "image",
+    "key": "bg",
+    "url": "./assets/images/bg.png"
+}
+]
+} 
+}

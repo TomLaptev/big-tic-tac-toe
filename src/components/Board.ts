@@ -25,6 +25,7 @@ export default class Board {
 	public drawBoard(): void {
 		
 		this.createCells();
+		
 	}
 
 	private getCellsPositions() {
@@ -32,9 +33,9 @@ export default class Board {
 		this.offsetX = (+GameConfig.width - Source.cellWidth * Source.cols) / 2;
 
 		if (window.innerWidth > window.innerHeight) {
-		this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2 + Source.cellHeight;
+		this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2  - Source.cellHeight / 5 /**/;
 		} else {
-			this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2 - 2 * Source.cellHeight;
+			this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2 - 2.5 * Source.cellHeight ;
 		}
 
 		for (let row = 0; row < Source.rows; row++) {

@@ -2,3 +2,11 @@
     font-family: 'NautilusPompilius';
     src: url('../assets/fonts/NautilusPompiliusRegular.ttf');    
 }
+/* @font-face {
+    font-family: 'Brusnika';
+    src: url('../assets/fonts/Brusnika-normal_version_02');     
+}*/
+@font-face {
+    font-family: 'TOYZ';
+    src: url('../assets/fonts/TOYZ.ttf');    
+}

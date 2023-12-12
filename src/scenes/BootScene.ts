@@ -1,14 +1,15 @@
-import { Images } from '../utils/const';
+
 export class BootScene extends Phaser.Scene {
 	private loadingBar: Phaser.GameObjects.Graphics;
 	private progressBar: Phaser.GameObjects.Graphics;
 
 	constructor() {
 		super({
-			key: 'BootScene',
+			key: 'Boot',
 		});
 	}
 	preload(): void {
+		console.log('start')
 		this.createLoadingbar();
 
 		// pass value to change the loading bar fill
@@ -37,14 +38,11 @@ export class BootScene extends Phaser.Scene {
 			},
 			this
 		);
-		this.load.pack('preload', './assets/pack.json', 'preload');
-		
+		 this.load.pack('preload', './assets/pack.json', 'preload');
+		 
 	}
 
 	create(): void {
-		if (window.innerWidth > window.innerHeight) {
-			this.add.sprite(0, 0, Images.BACKGROUND_H).setOrigin(0, 0);
-		} else this.add.sprite(0, 0, Images.BACKGROUND_V).setOrigin(0, 0);
 		this.scene.start('Start');
 	}
 
