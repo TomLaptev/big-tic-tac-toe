@@ -1,3 +1,5 @@
+import SoundManager from '../components/SoundManager';
+
 export class BootScene extends Phaser.Scene {
 	private loadingBar: Phaser.GameObjects.Graphics;
 	private progressBar: Phaser.GameObjects.Graphics;
@@ -8,7 +10,6 @@ export class BootScene extends Phaser.Scene {
 		});
 	}
 	preload(): void {
-		console.log('start')
 		this.createLoadingbar();
 
 		// pass value to change the loading bar fill
@@ -37,11 +38,12 @@ export class BootScene extends Phaser.Scene {
 			},
 			this
 		);
-		 this.load.pack('preload', './assets/pack.json', 'preload');
-		 
+		this.load.pack('preload', './assets/pack.json', 'preload');
 	}
 
 	create(): void {
+		new SoundManager(this);
+		this.game.sound.pauseAll();
 		this.scene.start('Start');
 	}
 

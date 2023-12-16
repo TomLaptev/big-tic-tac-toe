@@ -1,5 +1,4 @@
 import Button from '../components/Button';
-import SoundManager from '../components/SoundManager';
 import { Images } from '../utils/const';
 import store from '../store';
 
@@ -18,12 +17,10 @@ export class StartScene extends Phaser.Scene {
 	winnersButton: Button;
 	confirmButton: Button;
 	messWindow: any;
-	soundTreck: any;
-	isSoundTreck: boolean;
-	SM :SoundManager;
+	isMusicEnabled: boolean = localStorage.getItem('isSoundEnable') === 'true' ? true : false;
 	constructor() {
 		super({
-			key: 'Start' 
+			key: 'Start',
 		});
 	}
 
@@ -32,9 +29,10 @@ export class StartScene extends Phaser.Scene {
 		this.createBackground();
 		this.createNameGame();
 		this.createMainMenu();
-		this.SM = new SoundManager(this);
-		this.SM.initSounds();  
-	};
+		if (this.isMusicEnabled) {
+			this.game.sound.resumeAll();
+		}
+	}
 
 	createBackground() {
 		let Neptune: any;
@@ -44,26 +42,19 @@ export class StartScene extends Phaser.Scene {
 		} else this.add.sprite(0, 0, Images.BACKGROUND_V).setOrigin(0, 0);
 
 		Neptune = this.add
-			.sprite(
-				this.cameras.main.centerX - 40,
-				this.cameras.main.centerY - 200,
-				Images.NEPTUNE
-			)
+			.sprite(this.cameras.main.centerX - 40, this.cameras.main.centerY - 200, Images.NEPTUNE)
 			.setOrigin(0, 0);
 
 		board = this.add
-			.sprite(
-				this.cameras.main.centerX - 160,
-				this.cameras.main.centerY - 0,
-				Images.BOARD
-			)
+			.sprite(this.cameras.main.centerX - 160, this.cameras.main.centerY - 0, Images.BOARD)
 			.setOrigin(0, 0);
 		board.setScale(0.7);
 	}
 
 	createNameGame() {
 		let title: string =
-			window.innerWidth < window.innerHeight ? '\n      Большие\n\n Крестики-нолики \n\n     у Нептуна'
+			window.innerWidth < window.innerHeight
+				? '\n      Большие\n\n Крестики-нолики \n\n     у Нептуна'
 				: '       \n\n Большие Крестики-нолики \n\n            у Нептуна';
 		this.topTitle = new Button(
 			this,
@@ -85,9 +76,13 @@ export class StartScene extends Phaser.Scene {
 			this,
 			this.cameras.main.centerX - 200,
 			this.cameras.main.centerY + 300,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.WINNERS,
-			null, null, null, 
+			null,
+			null,
+			null,
 			() => {}
 		);
 
@@ -95,48 +90,55 @@ export class StartScene extends Phaser.Scene {
 			this,
 			this.cameras.main.centerX - 0,
 			this.cameras.main.centerY + 300,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.PLAY,
-			null, null, null,
+			null,
+			null,
+			null,
 			() => {
-				this.SM.stopSoundTreck();
+				// this.SM.stopSoundTrack();
 				//@ts-ignore
-				window.ysdk.adv.showFullscreenAdv(
-					{
-						callbacks: {
-							onClose: (() => {
-								// if (!this.SM.isMusic && localStorage.getItem('isSoundEnable') === 'true') {
-								// 	this.SM.playSoundTreck();
-								// }
-								this.scene.start("Game");
-							}),
-							onOpen: (() => {
-								this.SM.stopSoundTreck();
-							})
-						}
-					}
-				);
+				window.ysdk.adv.showFullscreenAdv({
+					callbacks: {
+						onClose: () => {
+							// if (!this.SM.isMusic && localStorage.getItem('isSoundEnable') === 'true') {
+							// }
+							this.scene.start('Game');
+						},
+						onOpen: () => {},
+					},
+				});
 			}
 		);
-	
+
 		this.settingsButton = new Button(
 			this,
 			this.cameras.main.centerX + 200,
 			this.cameras.main.centerY + 300,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.SETTINGS,
-			null, null, null,
+			null,
+			null,
+			null,
 			() => {
 				this.winnersButton.container.destroy();
 				this.playButton.container.destroy();
 				this.settingsButton.container.destroy();
-				this.messWindow = this.add.sprite(this.cameras.main.centerX - 300,
-					this.cameras.main.centerY - 240,
-					Images.MESS).setOrigin(0, 0)
+				this.messWindow = this.add
+					.sprite(
+						this.cameras.main.centerX - 300,
+						this.cameras.main.centerY - 240,
+						Images.MESS
+					)
+					.setOrigin(0, 0)
 					.setAlpha(0.8);
 				this.createlangButton();
 				this.createSoundButton();
-				this.createConfirmButton()
+				this.createConfirmButton();
 			}
 		);
 	}
@@ -155,12 +157,12 @@ export class StartScene extends Phaser.Scene {
 			this.isRu ? '    Ru' : '   En',
 			() => {
 				if (store.language === 'eng') {
-					store.language = 'ru'
-					localStorage.setItem('lang', 'ru')
+					store.language = 'ru';
+					localStorage.setItem('lang', 'ru');
 					this.isRu = true;
 				} else {
-					store.language = 'eng'
-					localStorage.setItem('lang', 'eng')
+					store.language = 'eng';
+					localStorage.setItem('lang', 'eng');
 					this.isRu = false;
 				}
 				this.langButton.container.destroy();
@@ -171,7 +173,6 @@ export class StartScene extends Phaser.Scene {
 		);
 	}
 	createSoundButton() {
-
 		let data: string = localStorage.getItem('isSoundEnable');
 		this.soundButton = new Button(
 			this,
@@ -185,34 +186,39 @@ export class StartScene extends Phaser.Scene {
 			20,
 			data === 'true' ? '' : '     X',
 			() => {
-				if (this.SM.isMusic) {
+				if (this.isMusicEnabled) {
+					this.game.sound.pauseAll();
 					localStorage.setItem('isSoundEnable', 'false');
-					this.SM.stopSoundTreck();
 				} else {
+					this.game.sound.resumeAll();
 					localStorage.setItem('isSoundEnable', 'true');
-					this.SM.playSoundTreck();
 				}
+				this.isMusicEnabled = !this.isMusicEnabled;
 				this.soundButton.container.destroy();
 				this.createSoundButton();
 			}
 		);
 	}
 
-	createConfirmButton() {		
+	createConfirmButton() {
 		this.confirmButton = new Button(
 			this,
 			this.cameras.main.centerX + 210,
 			this.cameras.main.centerY + 0,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.CONFIRM,
-			null, null, null,
+			null,
+			null,
+			null,
 			() => {
 				this.langButton.container.destroy();
 				this.soundButton.container.destroy();
 				this.confirmButton.container.destroy();
-        this.messWindow.destroy();
+				this.messWindow.destroy();
 				this.createMainMenu();
 			}
-		)
+		);
 	}
 }

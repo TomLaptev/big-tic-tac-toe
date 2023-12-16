@@ -10,7 +10,7 @@ import SoundManager from '../components/SoundManager';
 export class GameScene extends Phaser.Scene {
 	BOARD: Board = null;
 	GA: GameAlgoritm = null;
-	SM: SoundManager;
+	// SM: SoundManager;
 	cells: Cell[] = [];
 	pointer: any;
 	btnXWasPressed: boolean;
@@ -38,13 +38,13 @@ export class GameScene extends Phaser.Scene {
 
 	create(): void {
 		this.isGameSceneBuilded = false;
-		console.log(localStorage.getItem('isSoundEnable') === 'true')
+		console.log(localStorage.getItem('isSoundEnable') === 'true');
 		this.createBackground();
 		this.BOARD = new Board(this);
 		this.btnXWasPressed = true;
 		this.btnZeroWasPressed = false;
 		this.isConfirmStart = false;
-		this.GA = new GameAlgoritm(this)
+		this.GA = new GameAlgoritm(this);
 		this.isRu = storage.language !== 'ru';
 		this.textInString = '';
 		this.turnMove = Math.floor(Math.random() * 2) == 0;
@@ -54,17 +54,23 @@ export class GameScene extends Phaser.Scene {
 		this.createTimeBar();
 		this.createTimer();
 		this.starsCount > 0 ? this.Start() : this.getStars();
-		this.SM = new SoundManager(this);
-		this.SM.initSounds();
-
+		// this.SM = new SoundManager(this);
+		// this.SM.initSounds();
 	}
 
 	getStars() {
-		let mess: any = this.add.sprite(this.cameras.main.centerX - 300,
-			(window.innerWidth > window.innerHeight ? this.cameras.main.centerY - 240 : this.cameras.main.centerY - 300),
-			Images.MESS).setOrigin(0, 0)
+		let mess: any = this.add
+			.sprite(
+				this.cameras.main.centerX - 300,
+				window.innerWidth > window.innerHeight
+					? this.cameras.main.centerY - 240
+					: this.cameras.main.centerY - 300,
+				Images.MESS
+			)
+			.setOrigin(0, 0)
 			.setAlpha(0.8);
-		let getStarsText: string = !this.isRu ? '  Для продолжения\n\nигры вам необходимо\n\n  получить 5 звезд'
+		let getStarsText: string = !this.isRu
+			? '  Для продолжения\n\nигры вам необходимо\n\n  получить 5 звезд'
 			: '    To continue\n\n the game you need\n\n   to get 5 stars';
 
 		new Button(
@@ -85,21 +91,26 @@ export class GameScene extends Phaser.Scene {
 			this,
 			this.cameras.main.centerX + 0,
 			mess.y + 350,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.CONFIRM,
-			null, null, null,
+			null,
+			null,
+			null,
 			() => {
 				//@ts-ignore
 				window.ysdk.adv.showRewardedVideo({
 					callbacks: {
 						onOpen: () => {
-              this.SM.stopSoundTreck();
+							// this.SM.stopSoundTrack();
+
 							console.log('Video ad open.');
 						},
 						onRewarded: () => {
 							this.starsCount = 5;
-							localStorage.setItem('stars', ` ${this.starsCount}`)
-							
+							localStorage.setItem('stars', ` ${this.starsCount}`);
+
 							console.log('Rewarded!');
 						},
 						onClose: () => {
@@ -108,50 +119,64 @@ export class GameScene extends Phaser.Scene {
 						},
 						onError: (e: any) => {
 							console.log('Error while open video ad:', e);
-						}
-					}
-				})
+						},
+					},
+				});
 			}
-		)
-
+		);
 	}
 
 	Start() {
-		let mess: any = this.add.sprite(this.cameras.main.centerX - 300,
-			(window.innerWidth > window.innerHeight ? this.cameras.main.centerY - 240 : this.cameras.main.centerY - 300),
-			Images.MESS).setOrigin(0, 0)
+		let mess: any = this.add
+			.sprite(
+				this.cameras.main.centerX - 300,
+				window.innerWidth > window.innerHeight
+					? this.cameras.main.centerY - 240
+					: this.cameras.main.centerY - 300,
+				Images.MESS
+			)
+			.setOrigin(0, 0)
 			.setAlpha(0.8);
 
 		let startTextX: string = !this.isRu ? 'Вы ходите первым' : 'You go first';
-		let startTextZero: string = !this.isRu ? '    соперник \n\nходит первым' : 'rival goes first';
+		let startTextZero: string = !this.isRu
+			? '    соперник \n\nходит первым'
+			: 'rival goes first';
 
 		let confirmStart: Button = new Button(
 			this,
 			this.cameras.main.centerX + 0,
 			mess.y + 300,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.CONFIRM,
-			null, null, null,
-			() => {				
+			null,
+			null,
+			null,
+			() => {
 				this.starsCount--;
-				localStorage.setItem('stars', ` ${this.starsCount}`)
+				localStorage.setItem('stars', ` ${this.starsCount}`);
 				this.isConfirmStart = true;
 				this.BOARD.drawBoard();
 				this.createPointer();
 
 				if (this.turnMove) {
 					this.pressButtonZero();
-					!this.isRu ? this.textInString = 'Ход соперника' : this.textInString = "Rival's move";
+					!this.isRu
+						? (this.textInString = 'Ход соперника')
+						: (this.textInString = "Rival's move");
 					this.createTimeBar();
-
 				} else {
-					!this.isRu ? this.textInString = '    Ваш ход' : this.textInString = 'Your move';
+					!this.isRu
+						? (this.textInString = '    Ваш ход')
+						: (this.textInString = 'Your move');
 					this.createTimeBar();
 					this.Timer.paused = false;
 				}
 				this.isGameSceneBuilded = true;
 			}
-		)
+		);
 
 		let textTurneMove: Button = new Button(
 			this,
@@ -168,26 +193,20 @@ export class GameScene extends Phaser.Scene {
 		);
 
 		for (let i = 0; i < this.starsCount; i++) {
-			this.add.sprite(
-				this.timeContainer.x - 60 + i * 50,
-				this.timeContainer.y,
-				Images.STAR)
-
+			this.add.sprite(this.timeContainer.x - 60 + i * 50, this.timeContainer.y, Images.STAR);
 		}
-
 	}
 
 	createTimeBar() {
 		if (!this.GA.store.length && !this.isConfirmStart) {
-			this.textInString = ''
-
+			this.textInString = '';
 		}
 
 		if (this.GA.isYourMove && !this.isRu) {
 			this.textInString = '    Ваш ход';
 		} else if (this.GA.isYourMove && this.isRu) {
-			this.textInString = 'Your move'
-		};
+			this.textInString = 'Your move';
+		}
 
 		if (this.GA.isRivalMove && !this.isRu) {
 			this.textInString = 'Ход соперника';
@@ -195,24 +214,36 @@ export class GameScene extends Phaser.Scene {
 			this.textInString = "Rival's move";
 		}
 
-		this.GA.isFinish ? this.textInString = '' : 1;
+		this.GA.isFinish ? (this.textInString = '') : 1;
 
 		this.timeToMove = Source.timeToMove;
 		this.timeContainer = this.add.sprite(
-			(window.innerWidth > window.innerHeight ? this.cameras.main.centerX - 5 : this.cameras.main.centerX + 50),
-			(window.innerWidth > window.innerHeight ? this.cameras.main.centerY - 350 : this.cameras.main.centerY + 250),
-			Images.TIMECONTAINER);
-		this.timeBar = this.add.sprite(this.timeContainer.x + 35, this.timeContainer.y, Images.TIMEBAR);
+			window.innerWidth > window.innerHeight
+				? this.cameras.main.centerX - 5
+				: this.cameras.main.centerX + 50,
+			window.innerWidth > window.innerHeight
+				? this.cameras.main.centerY - 350
+				: this.cameras.main.centerY + 250,
+			Images.TIMECONTAINER
+		);
+		this.timeBar = this.add.sprite(
+			this.timeContainer.x + 35,
+			this.timeContainer.y,
+			Images.TIMEBAR
+		);
 		this.timeMask = this.add.sprite(this.timeBar.x, this.timeBar.y, Images.TIMEBAR);
-		this.textForMove = this.add.text(this.timeBar.x - 120, this.timeBar.y - 20, this.textInString, {
-			font: "32px Verdana",
-			color: "#ffffff",
-		}
-		)
+		this.textForMove = this.add.text(
+			this.timeBar.x - 120,
+			this.timeBar.y - 20,
+			this.textInString,
+			{
+				font: '32px Verdana',
+				color: '#ffffff',
+			}
+		);
 
 		this.timeMask.visible = false;
 		this.timeBar.mask = new Phaser.Display.Masks.BitmapMask(this, this.timeMask);
-
 	}
 
 	createTimer() {
@@ -221,30 +252,30 @@ export class GameScene extends Phaser.Scene {
 			callback: function () {
 				this.timeToMove--;
 
-				let stepWidth = this.timeMask.displayWidth / Source.timeToMove
+				let stepWidth = this.timeMask.displayWidth / Source.timeToMove;
 				this.timeMask.x -= stepWidth;
-				console.log(this.timeToMove)
+				console.log(this.timeToMove);
 				if (this.timeToMove == -1 || this.GA.isFinish) {
 					this.GA.isFinish = false;
-					this.timeToMove = -1
-					console.log(this.timeToMove)
-					this.createEndSessionStart()
+					this.timeToMove = -1;
+					console.log(this.timeToMove);
+					this.createEndSessionStart();
 				} else if (this.timeToMove == -3) {
-					this.createEndSessionEnd()
+					this.createEndSessionEnd();
 				}
 			},
 			callbackScope: this,
 			paused: true,
-			loop: true
+			loop: true,
 		});
 	}
 
 	createEndSessionStart() {
 		this.textForMove.destroy();
 		if (this.GA.isYourMove) {
-			this.sounds.timeout.play()
+			this.sounds.timeout.play();
 		} else {
-			this.sounds.complete.play()
+			this.sounds.complete.play();
 		}
 	}
 	createEndSessionEnd() {
@@ -252,27 +283,41 @@ export class GameScene extends Phaser.Scene {
 		this.createTimeBar();
 		this.Timer.destroy();
 
-		let mess: any = this.add.sprite(this.cameras.main.centerX - 300,
-			(window.innerWidth > window.innerHeight ? this.cameras.main.centerY - 240 : this.cameras.main.centerY - 300),
-			Images.MESS).setOrigin(0, 0)
+		let mess: any = this.add
+			.sprite(
+				this.cameras.main.centerX - 300,
+				window.innerWidth > window.innerHeight
+					? this.cameras.main.centerY - 240
+					: this.cameras.main.centerY - 300,
+				Images.MESS
+			)
+			.setOrigin(0, 0)
 			.setAlpha(0.8);
-		let finishTextX: string = !this.isRu ? ' Поздравляем!!! \n\n   Вы победили' : 'Congratulations!!! \n\n       You won';
-		let finishTextZero: string = !this.isRu ? '     Сожалеем,\n\n Победил соперник' : "  We're sorry,\n\n The rival won";
+		let finishTextX: string = !this.isRu
+			? ' Поздравляем!!! \n\n   Вы победили'
+			: 'Congratulations!!! \n\n       You won';
+		let finishTextZero: string = !this.isRu
+			? '     Сожалеем,\n\n Победил соперник'
+			: "  We're sorry,\n\n The rival won";
 
 		let confirmFinish: Button = new Button(
 			this,
 			this.cameras.main.centerX + 0,
 			mess.y + 300,
-			null, null, null,
+			null,
+			null,
+			null,
 			Images.CONFIRM,
-			null, null, null,
+			null,
+			null,
+			null,
 			() => {
-				this.SM.stopSoundTreck();
+				// this.SM.stopSoundTrack();
 				this.pressButtonX();
 				//this.scene.restart();
-				this.scene.start("Start");
+				this.scene.start('Start');
 			}
-		)
+		);
 
 		let textFinish: Button = new Button(
 			this,
@@ -296,9 +341,9 @@ export class GameScene extends Phaser.Scene {
 	}
 	createSounds() {
 		this.sounds = {
-			complete: this.sound.add("complete"),
-			timeout: this.sound.add("timeout"),
-			card: this.sound.add("card"),
+			complete: this.sound.add('complete'),
+			timeout: this.sound.add('timeout'),
+			card: this.sound.add('card'),
 		};
 	}
 
@@ -310,107 +355,143 @@ export class GameScene extends Phaser.Scene {
 				Images.POINTER
 			)
 			.setOrigin(0, 0);
-
 	}
 
 	createControl() {
-		
-	
-			if (window.innerWidth < window.innerHeight) {
-
-				new Button(
-					this,
-					this.cameras.main.centerX - 130,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.LEFT,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.x > this.cells[0].x && !this.GA.isFinish) {
-							this.pointer.x -= Source.cellWidth;
-						}
+		if (window.innerWidth < window.innerHeight) {
+			new Button(
+				this,
+				this.cameras.main.centerX - 130,
+				this.cameras.main.centerY + 365,
+				null,
+				null,
+				null,
+				Images.LEFT,
+				null,
+				null,
+				null,
+				() => {
+					if (
+						this.isGameSceneBuilded &&
+						this.pointer.x > this.cells[0].x &&
+						!this.GA.isFinish
+					) {
+						this.pointer.x -= Source.cellWidth;
 					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX + 70,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.RIGHT,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.x < this.cells.at(-1).x && !this.GA.isFinish) {
-							this.pointer.x += Source.cellWidth;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX - 30,
-					this.cameras.main.centerY + 325,
-					null, null, null,
-					Images.UP,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.y > this.cells[0].y && !this.GA.isFinish) {
-							this.pointer.y -= Source.cellHeight;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX - 30,
-					this.cameras.main.centerY + 410,
-					null, null, null,
-					Images.DOWN,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.y < this.cells.at(-1).y && !this.GA.isFinish) {
-							this.pointer.y += Source.cellHeight;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX + 220,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.ENTER,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded ) {
-							let pos =
-							(Source.cols * (this.pointer.y - this.cells[0].y)) / Source.cellHeight +
-							(this.pointer.x - this.cells[0].x) / Source.cellWidth;
-						this.GA.onCellClicked(this.cells[pos]);
-						}
-						
-					}
-				);
-			}
-
+				}
+			);
 
 			new Button(
 				this,
-				(window.innerWidth > window.innerHeight ? this.cameras.main.centerX - 5 : this.cameras.main.centerX - 240),
-				(window.innerWidth > window.innerHeight ? this.cameras.main.centerY + 350 : this.cameras.main.centerY + 260),
-				null, null, null,
-				Images.BUTTON_HOME,
-				null, null, null,
+				this.cameras.main.centerX + 70,
+				this.cameras.main.centerY + 365,
+				null,
+				null,
+				null,
+				Images.RIGHT,
+				null,
+				null,
+				null,
 				() => {
-					this.SM.stopSoundTreck();
-					this.isGameSceneBuilded =  false;
-					this.pressButtonX();
-					//this.scene.restart();
-					this.scene.start("Start");
-
+					if (
+						this.isGameSceneBuilded &&
+						this.pointer.x < this.cells.at(-1).x &&
+						!this.GA.isFinish
+					) {
+						this.pointer.x += Source.cellWidth;
+					}
 				}
 			);
-				
+
+			new Button(
+				this,
+				this.cameras.main.centerX - 30,
+				this.cameras.main.centerY + 325,
+				null,
+				null,
+				null,
+				Images.UP,
+				null,
+				null,
+				null,
+				() => {
+					if (
+						this.isGameSceneBuilded &&
+						this.pointer.y > this.cells[0].y &&
+						!this.GA.isFinish
+					) {
+						this.pointer.y -= Source.cellHeight;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX - 30,
+				this.cameras.main.centerY + 410,
+				null,
+				null,
+				null,
+				Images.DOWN,
+				null,
+				null,
+				null,
+				() => {
+					if (
+						this.isGameSceneBuilded &&
+						this.pointer.y < this.cells.at(-1).y &&
+						!this.GA.isFinish
+					) {
+						this.pointer.y += Source.cellHeight;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX + 220,
+				this.cameras.main.centerY + 365,
+				null,
+				null,
+				null,
+				Images.ENTER,
+				null,
+				null,
+				null,
+				() => {
+					if (this.isGameSceneBuilded) {
+						let pos =
+							(Source.cols * (this.pointer.y - this.cells[0].y)) / Source.cellHeight +
+							(this.pointer.x - this.cells[0].x) / Source.cellWidth;
+						this.GA.onCellClicked(this.cells[pos]);
+					}
+				}
+			);
+		}
+
+		new Button(
+			this,
+			window.innerWidth > window.innerHeight
+				? this.cameras.main.centerX - 5
+				: this.cameras.main.centerX - 240,
+			window.innerWidth > window.innerHeight
+				? this.cameras.main.centerY + 350
+				: this.cameras.main.centerY + 260,
+			null,
+			null,
+			null,
+			Images.BUTTON_HOME,
+			null,
+			null,
+			null,
+			() => {
+				// this.SM.stopSoundTrack();
+				this.isGameSceneBuilded = false;
+				this.pressButtonX();
+				//this.scene.restart();
+				this.scene.start('Start');
+			}
+		);
 	}
 	pressButtonX() {
 		this.GA.store.length = 0;
@@ -429,5 +510,4 @@ export class GameScene extends Phaser.Scene {
 		this.BOARD.drawBoard();
 		this.GA.onCellClicked(this.cells[centralCell]);
 	}
-
 }
