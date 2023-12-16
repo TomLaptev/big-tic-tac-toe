@@ -1,5 +1,5 @@
-import { GameConfig, Source } from '../GameConfig';
 import Button from '../components/Button';
+import SoundManager from '../components/SoundManager';
 import { Images } from '../utils/const';
 import store from '../store';
 
@@ -12,31 +12,28 @@ export class StartScene extends Phaser.Scene {
 	backButton: Button;
 	playButton: Button;
 	isRu: boolean;
-	isSound: boolean;
-	isChoosedButton: boolean;
 	langButton: Button;
 	soundButton: Button;
-	sounds: any;
-	isMusic: boolean;
-	GAMES: any;
+	settingsButton: Button;
+	winnersButton: Button;
+	confirmButton: Button;
+	messWindow: any;
+	soundTreck: any;
+	isSoundTreck: boolean;
+	SM :SoundManager;
 	constructor() {
 		super({
-			key: 'Start',
+			key: 'Start' 
 		});
 	}
 
-
 	create(): void {
 		this.isRu = store.language === 'ru';
-		this.isSound = store.sound === 'x';
 		this.createBackground();
 		this.createNameGame();
 		this.createMainMenu();
-		if (!this.isMusic) {
-			this.createSounds();
-		}
-
-
+		this.SM = new SoundManager(this);
+		this.SM.initSounds();  
 	};
 
 	createBackground() {
@@ -62,10 +59,12 @@ export class StartScene extends Phaser.Scene {
 			)
 			.setOrigin(0, 0);
 		board.setScale(0.7);
-
 	}
 
 	createNameGame() {
+		let title: string =
+			window.innerWidth < window.innerHeight ? '\n      Большие\n\n Крестики-нолики \n\n     у Нептуна'
+				: '       \n\n Большие Крестики-нолики \n\n            у Нептуна';
 		this.topTitle = new Button(
 			this,
 			this.cameras.main.centerX + 10,
@@ -76,51 +75,23 @@ export class StartScene extends Phaser.Scene {
 			null,
 			'TOYZ',
 			46,
-			this.isRu ? '       Большие\n\n Крестики-нолики \n\n     у Нептуна' : '\n Big tic-tac-toe\n\n near Neptune',
+			this.isRu ? title : '\n Big tic-tac-toe\n\n near Neptune',
 			null
 		);
 	}
 
-
-
-	createSounds() {
-		this.sounds = {
-			theme: this.sound.add("theme"),
-		};
-		this.playTheme();
-	}
-
-	playTheme() {
-		if (this.isSound && !this.isMusic) {
-			this.sounds.theme.play({ volume: 0.1, loop: true });
-			this.isMusic = true;
-		}
-	}
-	stopTheme() {
-		this.sounds.theme.stop();
-		this.isMusic = false;
-
-	}
-
 	createMainMenu() {
-		let winnersButton: Button;
-		let settingsButton: Button;
-		let playButton: Button;
-
-		winnersButton = new Button(
+		this.winnersButton = new Button(
 			this,
 			this.cameras.main.centerX - 200,
 			this.cameras.main.centerY + 300,
 			null, null, null,
 			Images.WINNERS,
-			null, null, null,
-			() => {
-				//this.startWinnerScene()
-			}
+			null, null, null, 
+			() => {}
 		);
 
-
-		playButton = new Button(
+		this.playButton = new Button(
 			this,
 			this.cameras.main.centerX - 0,
 			this.cameras.main.centerY + 300,
@@ -128,52 +99,53 @@ export class StartScene extends Phaser.Scene {
 			Images.PLAY,
 			null, null, null,
 			() => {
+				this.SM.stopSoundTreck();
 				//@ts-ignore
 				window.ysdk.adv.showFullscreenAdv(
 					{
 						callbacks: {
 							onClose: (() => {
-								if (!this.isMusic) {
-									this.playTheme();
-								}
-								this.startGameScene();
+								// if (!this.SM.isMusic && localStorage.getItem('isSoundEnable') === 'true') {
+								// 	this.SM.playSoundTreck();
+								// }
+								this.scene.start("Game");
 							}),
 							onOpen: (() => {
-								this.stopTheme();
+								this.SM.stopSoundTreck();
 							})
 						}
 					}
 				);
-
-
 			}
 		);
-
-		settingsButton = new Button(
+	
+		this.settingsButton = new Button(
 			this,
-			this.cameras.main.centerX + 220,
+			this.cameras.main.centerX + 200,
 			this.cameras.main.centerY + 300,
 			null, null, null,
 			Images.SETTINGS,
 			null, null, null,
 			() => {
-				winnersButton.container.destroy();
-				playButton.container.destroy();
-				settingsButton.container.destroy()
+				this.winnersButton.container.destroy();
+				this.playButton.container.destroy();
+				this.settingsButton.container.destroy();
+				this.messWindow = this.add.sprite(this.cameras.main.centerX - 300,
+					this.cameras.main.centerY - 240,
+					Images.MESS).setOrigin(0, 0)
+					.setAlpha(0.8);
 				this.createlangButton();
 				this.createSoundButton();
 				this.createConfirmButton()
 			}
 		);
-
 	}
-
 
 	createlangButton() {
 		this.langButton = new Button(
 			this,
-			this.cameras.main.centerX - 200,
-			this.cameras.main.centerY + 300,
+			this.cameras.main.centerX - 210,
+			this.cameras.main.centerY + 0,
 			null,
 			null,
 			'#ffffff',
@@ -195,64 +167,52 @@ export class StartScene extends Phaser.Scene {
 				this.topTitle.container.destroy();
 				this.createlangButton();
 				this.createNameGame();
-
 			}
 		);
 	}
 	createSoundButton() {
 
-		let data: string = localStorage.getItem('sound');
-		this.isSound = data === 'x';
+		let data: string = localStorage.getItem('isSoundEnable');
 		this.soundButton = new Button(
 			this,
-			this.cameras.main.centerX - 0,
-			this.cameras.main.centerY + 300,
+			this.cameras.main.centerX - 10,
+			this.cameras.main.centerY + 0,
 			null,
 			null,
 			'#ffffff',
 			Images.BUTTON_SOUND,
 			'Verdana',
 			20,
-			data ? '' : '     X',
+			data === 'true' ? '' : '     X',
 			() => {
-				if (data === 'x') {
-					localStorage.setItem('sound', '');
-					this.stopTheme();
+				if (this.SM.isMusic) {
+					localStorage.setItem('isSoundEnable', 'false');
+					this.SM.stopSoundTreck();
 				} else {
-					localStorage.setItem('sound', 'x');
-					this.playTheme();
+					localStorage.setItem('isSoundEnable', 'true');
+					this.SM.playSoundTreck();
 				}
 				this.soundButton.container.destroy();
 				this.createSoundButton();
-				//
-				this.createSounds();
 			}
 		);
 	}
 
-	createConfirmButton() {
-		let checkButton: Button;
-		checkButton = new Button(
+	createConfirmButton() {		
+		this.confirmButton = new Button(
 			this,
-			this.cameras.main.centerX + 220,
-			this.cameras.main.centerY + 300,
+			this.cameras.main.centerX + 210,
+			this.cameras.main.centerY + 0,
 			null, null, null,
 			Images.CONFIRM,
 			null, null, null,
 			() => {
-				this.returnStart();
+				this.langButton.container.destroy();
+				this.soundButton.container.destroy();
+				this.confirmButton.container.destroy();
+        this.messWindow.destroy();
+				this.createMainMenu();
 			}
 		)
-	}
-
-	startGameScene() {
-		//this.scene.sleep("UIScene");
-		this.scene.start("Start");
-		this.scene.start("Game");
-	}
-
-	returnStart() {
-		//this.scene.sleep("UIScene");
-		this.scene.start("Start");
 	}
 }

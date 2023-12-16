@@ -3,14 +3,15 @@ import { StartScene } from './scenes/StartScene';
 import { GameScene } from './scenes/GameScene';
 
 export const GameConfig: Phaser.Types.Core.GameConfig = {
-	type: Phaser.AUTO,
+	//type: Phaser.AUTO,
+	type: Phaser.WEBGL,
 	scene: [BootScene,  StartScene, GameScene],
 	width: 2800,
 	height: 810,
 	scale: {
 		// mode: Phaser.Scale.RESIZE,
-		mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-		autoCenter: Phaser.Scale.CENTER_BOTH,
+		 mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+		 autoCenter: Phaser.Scale.CENTER_BOTH,
 	}
 }
 

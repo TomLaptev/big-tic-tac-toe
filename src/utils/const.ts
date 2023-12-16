@@ -1,5 +1,5 @@
 export enum Images {
-	BG = 'bg',
+	BG = 'background',
 	BACKGROUND_V = 'background_v',
 	BACKGROUND_H = 'background_h',
 	NEPTUNE = 'Neptune',
@@ -31,5 +31,6 @@ export enum Images {
 	TEMPLATE_X = 'templateX',
 	CONTOUR = 'contour',
 	THEME = 'theme',
-	COMPLETE = 'complete'
+	COMPLETE = 'complete',
+	MESS = 'mess'
 }

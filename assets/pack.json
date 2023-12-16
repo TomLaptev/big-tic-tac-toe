@@ -3,6 +3,16 @@
     "files": [
       {
         "type": "image",
+        "key": "mess",
+        "url": "./assets/images/mess.png"
+      },
+      {
+        "type": "image",
+        "key": "background",
+        "url": "./assets/images/background.jpg"
+      },
+      {
+        "type": "image",
         "key": "background_h",
         "url": "./assets/images/background_h.jpg"
       },

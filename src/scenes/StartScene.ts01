@@ -1,0 +1,331 @@
+import { GameConfig, Source } from '../GameConfig';
+import {app}  from '../utils/appData';
+import Button from '../components/Button';
+import { Images } from '../utils/const';
+import store from '../store';
+
+export class StartScene extends Phaser.Scene {
+	topOpenButton: Button;
+	lowerOpenButton: Button;
+	topHiddenButton: Button;
+	lowerHiddenButton: Button;
+	topTitle: Button;
+	backButton: Button;
+	playButton: Button;
+	isRu: boolean;
+	isSound: boolean;
+	isChoosedButton: boolean;
+	langButton: Button;
+	soundButton: Button;
+	sounds: any;
+	isMusic: boolean;
+	imageList: any[] = [];
+	constructor() {
+		super({
+			key: 'Start',
+		});
+	}
+
+
+	create(): void {
+		this.isRu = store.language === 'ru';
+		this.isSound = store.sound === 'x';
+		//this.createBackground();
+		
+		this.createMainMenu();
+		if (!this.isMusic) {
+			this.createSounds();
+			this.adjustSize();
+		}
+	};
+
+	adjustSize(){
+		this.createNameGame();
+		// background -------------------------------------------------------------
+		//Proportion
+		let scaleLogo: number = 1;
+		let bg: any = this.add.image(
+			window.innerWidth / 2,
+			window.innerHeight / 2,
+			Images.POINTER
+		);
+		bg.orgWidth = bg.displayWidth;
+		bg.orgHeight = bg.displayHeight;
+		bg.update = function () {
+			if ((app.width * this.orgHeight) / this.orgWidth < app.height) {
+				this.displayWidth = (app.height * this.orgWidth) / this.orgHeight;
+				this.displayHeight = app.height;
+			} else {
+				this.displayWidth = app.width;
+				this.displayHeight = (app.width * this.orgHeight) / this.orgWidth;
+			}
+		};
+//  Neptune -------------------------------------------------------------
+		let Neptune: any;
+		Neptune = this.add
+		.sprite(
+			this.cameras.main.centerX - 100,
+			this.cameras.main.centerY - 400,
+			Images.NEPTUNE
+		)
+		.setOrigin(0, 0)
+		.setScale(2.2);
+//  Board -------------------------------------------------------------
+let board: any;
+board = this.add
+.sprite(
+	this.cameras.main.centerX - 360,
+	this.cameras.main.centerY + 0,
+	Images.BOARD
+)
+.setOrigin(0, 0);
+board.setScale(1.5);
+//-------------------------------------------------------------
+		this.imageList.push(
+			bg, Neptune, this.topTitle
+		
+		);
+
+		// all sprite update
+		for (let index = 0; index < this.imageList.length; index++) {
+			this.imageList[index].update();
+		}
+
+		this.scale.on('resize', this.resize, this);
+
+		this.cameraUpdate();
+		this.resize();
+	}
+
+	cameraUpdate() {
+		app.update();
+		const camera = this.cameras.main;
+		camera.setZoom(app.zoom);
+		camera.centerOn(app.centerX, app.centerY);
+	}
+
+	resize() {
+		this.cameraUpdate();
+		// all sprite update
+		for (let index = 0; index < this.imageList.length; index++) {
+			this.imageList[index].update();
+		}
+	}
+
+	// createBackground() {
+	// 	// let Neptune: any;
+	// 	let board: any;
+	// 	// if (window.innerWidth > window.innerHeight) {
+	// 	// 	this.add.sprite(0, 0, Images.BACKGROUND_H).setOrigin(0, 0);
+	// 	// } else this.add.sprite(0, 0, Images.BACKGROUND_V).setOrigin(0, 0);
+
+	// 	// Neptune = this.add
+	// 	// 	.sprite(
+	// 	// 		this.cameras.main.centerX - 40,
+	// 	// 		this.cameras.main.centerY - 200,
+	// 	// 		Images.NEPTUNE
+	// 	// 	)
+	// 	// 	.setOrigin(0, 0);
+
+	// 	// board = this.add
+	// 	// 	.sprite(
+	// 	// 		this.cameras.main.centerX - 160,
+	// 	// 		this.cameras.main.centerY - 0,
+	// 	// 		Images.BOARD
+	// 	// 	)
+	// 	// 	.setOrigin(0, 0);
+	// 	// board.setScale(0.7);
+
+	// }
+
+	createNameGame() {
+		this.topTitle = new Button(
+			this,
+			this.cameras.main.centerX + 10,
+			this.cameras.main.centerY - 320,
+			null,
+			null,
+			'#0000ff',
+			null,
+			'TOYZ',
+			46,
+			this.isRu ? 'Крестики-нолики \n\n     у Нептуна' : 'Big tic-tac-toe\n\n near Neptune',
+			null
+		);
+	}
+
+
+
+	createSounds() {
+		this.sounds = {
+			theme: this.sound.add("theme"),
+		};
+		this.playTheme();
+	}
+
+	playTheme() {
+		if (this.isSound && !this.isMusic) {
+			this.sounds.theme.play({ volume: 0.1, loop: true });
+			this.isMusic = true;
+		}
+	}
+	stopTheme() {
+		this.sounds.theme.stop();
+		this.isMusic = false;
+
+	}
+
+	createMainMenu() {
+		let winnersButton: Button;
+		let settingsButton: Button;
+		let playButton: Button;
+
+		winnersButton = new Button(
+			this,
+			this.cameras.main.centerX - 200,
+			this.cameras.main.centerY + 300,
+			null, null, null,
+			Images.WINNERS,
+			null, null, null,
+			() => {
+				//this.startWinnerScene()
+			}
+		);
+
+
+		playButton = new Button(
+			this,
+			this.cameras.main.centerX - 0,
+			this.cameras.main.centerY + 300,
+			null, null, null,
+			Images.PLAY,
+			null, null, null,
+			() => {
+				//@ts-ignore
+				window.ysdk.adv.showFullscreenAdv(
+					{
+						callbacks: {
+							onClose: (() => {
+								if (!this.isMusic) {
+									this.playTheme();
+								}
+								this.startGameScene();
+							}),
+							onOpen: (() => {
+								this.stopTheme();
+							})
+						}
+					}
+				);
+
+
+			}
+		);
+
+		settingsButton = new Button(
+			this,
+			this.cameras.main.centerX + 220,
+			this.cameras.main.centerY + 300,
+			null, null, null,
+			Images.SETTINGS,
+			null, null, null,
+			() => {
+				winnersButton.container.destroy();
+				playButton.container.destroy();
+				settingsButton.container.destroy()
+				this.createlangButton();
+				this.createSoundButton();
+				this.createConfirmButton()
+			}
+		);
+
+	}
+
+
+	createlangButton() {
+		this.langButton = new Button(
+			this,
+			this.cameras.main.centerX - 200,
+			this.cameras.main.centerY + 300,
+			null,
+			null,
+			'#ffffff',
+			Images.BUTTON_LANG,
+			'NautilusPompilius',
+			28,
+			this.isRu ? '    Ru' : '   En',
+			() => {
+				if (store.language === 'eng') {
+					store.language = 'ru'
+					localStorage.setItem('lang', 'ru')
+					this.isRu = true;
+				} else {
+					store.language = 'eng'
+					localStorage.setItem('lang', 'eng')
+					this.isRu = false;
+				}
+				this.langButton.container.destroy();
+				this.topTitle.container.destroy();
+				this.createlangButton();
+				this.createNameGame();
+
+			}
+		);
+	}
+	createSoundButton() {
+
+		let data: string = localStorage.getItem('sound');
+		this.isSound = data === 'x';
+		this.soundButton = new Button(
+			this,
+			this.cameras.main.centerX - 0,
+			this.cameras.main.centerY + 300,
+			null,
+			null,
+			'#ffffff',
+			Images.BUTTON_SOUND,
+			'Verdana',
+			20,
+			data ? '' : '     X',
+			() => {
+				if (data === 'x') {
+					localStorage.setItem('sound', '');
+					this.stopTheme();
+				} else {
+					localStorage.setItem('sound', 'x');
+					this.playTheme();
+				}
+				this.soundButton.container.destroy();
+				this.createSoundButton();
+				//
+				this.createSounds();
+			}
+		);
+	}
+
+	createConfirmButton() {
+		let checkButton: Button;
+		checkButton = new Button(
+			this,
+			this.cameras.main.centerX + 220,
+			this.cameras.main.centerY + 300,
+			null, null, null,
+			Images.CONFIRM,
+			null, null, null,
+			() => {
+				this.returnStart();
+			}
+		)
+	}
+
+	startGameScene() {
+		//this.scene.sleep("UIScene");
+		this.scene.start("Start");
+		this.scene.start("Game");
+	}
+
+	returnStart() {
+		//this.scene.sleep("UIScene");
+		this.scene.start("Start");
+	}
+}

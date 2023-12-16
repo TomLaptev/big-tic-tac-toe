@@ -1,13 +1,13 @@
 
  interface IStore {
     language: string,
-    sound: string,
+    isSoundEnable: string,
     
 }
 
 const store: IStore = {
     language: localStorage.lang ? localStorage.lang : 'ru', 
-    sound: localStorage.getItem('sound'),
+    isSoundEnable: localStorage.getItem('isSoundEnable'),
      
 }
 
