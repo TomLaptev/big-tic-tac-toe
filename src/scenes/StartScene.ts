@@ -4,12 +4,7 @@ import { Images } from '../utils/const';
 import store from '../store';
 
 export class StartScene extends Phaser.Scene {
-	topOpenButton: Button;
-	lowerOpenButton: Button;
-	topHiddenButton: Button;
-	lowerHiddenButton: Button;
 	topTitle: Button;
-	backButton: Button;
 	playButton: Button;
 	isRu: boolean;
 	langButton: Button;
@@ -17,13 +12,12 @@ export class StartScene extends Phaser.Scene {
 	settingsButton: Button;
 	winnersButton: Button;
 	confirmButton: Button;
-	messWindow: any;
-	soundTreck: any;
+	popUpWindow: any;
 	isSoundTreck: boolean;
-	SM :SoundManager;
+	SM: SoundManager;
 	constructor() {
 		super({
-			key: 'Start' 
+			key: 'Start'
 		});
 	}
 
@@ -33,7 +27,7 @@ export class StartScene extends Phaser.Scene {
 		this.createNameGame();
 		this.createMainMenu();
 		this.SM = new SoundManager(this);
-		this.SM.initSounds();  
+		this.SM.initSounds();
 	};
 
 	createBackground() {
@@ -87,8 +81,8 @@ export class StartScene extends Phaser.Scene {
 			this.cameras.main.centerY + 300,
 			null, null, null,
 			Images.WINNERS,
-			null, null, null, 
-			() => {}
+			null, null, null,
+			() => { }
 		);
 
 		this.playButton = new Button(
@@ -105,9 +99,6 @@ export class StartScene extends Phaser.Scene {
 					{
 						callbacks: {
 							onClose: (() => {
-								// if (!this.SM.isMusic && localStorage.getItem('isSoundEnable') === 'true') {
-								// 	this.SM.playSoundTreck();
-								// }
 								this.scene.start("Game");
 							}),
 							onOpen: (() => {
@@ -118,7 +109,7 @@ export class StartScene extends Phaser.Scene {
 				);
 			}
 		);
-	
+
 		this.settingsButton = new Button(
 			this,
 			this.cameras.main.centerX + 200,
@@ -130,7 +121,7 @@ export class StartScene extends Phaser.Scene {
 				this.winnersButton.container.destroy();
 				this.playButton.container.destroy();
 				this.settingsButton.container.destroy();
-				this.messWindow = this.add.sprite(this.cameras.main.centerX - 300,
+				this.popUpWindow = this.add.sprite(this.cameras.main.centerX - 300,
 					this.cameras.main.centerY - 240,
 					Images.MESS).setOrigin(0, 0)
 					.setAlpha(0.8);
@@ -198,7 +189,7 @@ export class StartScene extends Phaser.Scene {
 		);
 	}
 
-	createConfirmButton() {		
+	createConfirmButton() {
 		this.confirmButton = new Button(
 			this,
 			this.cameras.main.centerX + 210,
@@ -210,7 +201,7 @@ export class StartScene extends Phaser.Scene {
 				this.langButton.container.destroy();
 				this.soundButton.container.destroy();
 				this.confirmButton.container.destroy();
-        this.messWindow.destroy();
+				this.popUpWindow.destroy();
 				this.createMainMenu();
 			}
 		)

@@ -27,7 +27,7 @@ export class GameScene extends Phaser.Scene {
 	timeMask: any;
 	timeToMove: number;
 	textForMove: any;
-	textInString: string;
+	textInTimeBar: string;
 	isGameSceneBuilded: boolean;
 
 	constructor() {
@@ -38,7 +38,6 @@ export class GameScene extends Phaser.Scene {
 
 	create(): void {
 		this.isGameSceneBuilded = false;
-		console.log(localStorage.getItem('isSoundEnable') === 'true')
 		this.createBackground();
 		this.BOARD = new Board(this);
 		this.btnXWasPressed = true;
@@ -46,7 +45,7 @@ export class GameScene extends Phaser.Scene {
 		this.isConfirmStart = false;
 		this.GA = new GameAlgoritm(this)
 		this.isRu = storage.language !== 'ru';
-		this.textInString = '';
+		this.textInTimeBar = '';
 		this.turnMove = Math.floor(Math.random() * 2) == 0;
 		this.starsCount = localStorage.getItem('stars');
 		this.createControl();
@@ -93,13 +92,13 @@ export class GameScene extends Phaser.Scene {
 				window.ysdk.adv.showRewardedVideo({
 					callbacks: {
 						onOpen: () => {
-              this.SM.stopSoundTreck();
+							this.SM.stopSoundTreck();
 							console.log('Video ad open.');
 						},
 						onRewarded: () => {
 							this.starsCount = 5;
 							localStorage.setItem('stars', ` ${this.starsCount}`)
-							
+
 							console.log('Rewarded!');
 						},
 						onClose: () => {
@@ -132,7 +131,7 @@ export class GameScene extends Phaser.Scene {
 			null, null, null,
 			Images.CONFIRM,
 			null, null, null,
-			() => {				
+			() => {
 				this.starsCount--;
 				localStorage.setItem('stars', ` ${this.starsCount}`)
 				this.isConfirmStart = true;
@@ -140,16 +139,29 @@ export class GameScene extends Phaser.Scene {
 				this.createPointer();
 
 				if (this.turnMove) {
-					this.pressButtonZero();
-					!this.isRu ? this.textInString = 'Ход соперника' : this.textInString = "Rival's move";
-					this.createTimeBar();
+					this.pressButtonZero(); 
+					//---------- Для игры с ботом -------------------
+					if (this.GA.store.length === 0) {
+					 this.GA.onCellClicked(this.cells[112]);
+						!this.isRu ? this.textInTimeBar = '    Ваш ход' : this.textInTimeBar = 'Your move';
+						this.createTimeBar();
+					} else
+					//----------------------------------------------
+					{
+						!this.isRu ? this.textInTimeBar = 'Ход соперника' : this.textInTimeBar = "Rival's move";
+						this.createTimeBar();
+					}
+
+
 
 				} else {
-					!this.isRu ? this.textInString = '    Ваш ход' : this.textInString = 'Your move';
+					!this.isRu ? this.textInTimeBar = '    Ваш ход' : this.textInTimeBar = 'Your move';
 					this.createTimeBar();
 					this.Timer.paused = false;
 				}
 				this.isGameSceneBuilded = true;
+
+
 			}
 		)
 
@@ -179,23 +191,23 @@ export class GameScene extends Phaser.Scene {
 
 	createTimeBar() {
 		if (!this.GA.store.length && !this.isConfirmStart) {
-			this.textInString = ''
+			this.textInTimeBar = ''
 
 		}
 
-		if (this.GA.isYourMove && !this.isRu) {
-			this.textInString = '    Ваш ход';
-		} else if (this.GA.isYourMove && this.isRu) {
-			this.textInString = 'Your move'
+		if (this.isGameSceneBuilded && this.GA.isYourMove && !this.isRu) {
+			this.textInTimeBar = '    Ваш ход';
+		} else if (this.isGameSceneBuilded && this.GA.isYourMove && this.isRu) {
+			this.textInTimeBar = 'Your move'
 		};
 
-		if (this.GA.isRivalMove && !this.isRu) {
-			this.textInString = 'Ход соперника';
-		} else if (this.GA.isRivalMove && this.isRu) {
-			this.textInString = "Rival's move";
+		if (this.isGameSceneBuilded && this.GA.isRivalMove && !this.isRu) {
+			this.textInTimeBar = 'Ход соперника';
+		} else if (this.isGameSceneBuilded && this.GA.isRivalMove && this.isRu) {
+			this.textInTimeBar = "Rival's move";
 		}
 
-		this.GA.isFinish ? this.textInString = '' : 1;
+		this.GA.isFinish ? this.textInTimeBar = '' : 1;
 
 		this.timeToMove = Source.timeToMove;
 		this.timeContainer = this.add.sprite(
@@ -204,7 +216,7 @@ export class GameScene extends Phaser.Scene {
 			Images.TIMECONTAINER);
 		this.timeBar = this.add.sprite(this.timeContainer.x + 35, this.timeContainer.y, Images.TIMEBAR);
 		this.timeMask = this.add.sprite(this.timeBar.x, this.timeBar.y, Images.TIMEBAR);
-		this.textForMove = this.add.text(this.timeBar.x - 120, this.timeBar.y - 20, this.textInString, {
+		this.textForMove = this.add.text(this.timeBar.x - 120, this.timeBar.y - 20, this.textInTimeBar, {
 			font: "32px Verdana",
 			color: "#ffffff",
 		}
@@ -212,7 +224,7 @@ export class GameScene extends Phaser.Scene {
 
 		this.timeMask.visible = false;
 		this.timeBar.mask = new Phaser.Display.Masks.BitmapMask(this, this.timeMask);
-
+		
 	}
 
 	createTimer() {
@@ -220,10 +232,9 @@ export class GameScene extends Phaser.Scene {
 			delay: Source.delay,
 			callback: function () {
 				this.timeToMove--;
-
+				
 				let stepWidth = this.timeMask.displayWidth / Source.timeToMove
 				this.timeMask.x -= stepWidth;
-				console.log(this.timeToMove)
 				if (this.timeToMove == -1 || this.GA.isFinish) {
 					this.GA.isFinish = false;
 					this.timeToMove = -1
@@ -314,103 +325,103 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	createControl() {
-		
-	
-			if (window.innerWidth < window.innerHeight) {
 
-				new Button(
-					this,
-					this.cameras.main.centerX - 130,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.LEFT,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.x > this.cells[0].x && !this.GA.isFinish) {
-							this.pointer.x -= Source.cellWidth;
-						}
-					}
-				);
 
-				new Button(
-					this,
-					this.cameras.main.centerX + 70,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.RIGHT,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.x < this.cells.at(-1).x && !this.GA.isFinish) {
-							this.pointer.x += Source.cellWidth;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX - 30,
-					this.cameras.main.centerY + 325,
-					null, null, null,
-					Images.UP,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.y > this.cells[0].y && !this.GA.isFinish) {
-							this.pointer.y -= Source.cellHeight;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX - 30,
-					this.cameras.main.centerY + 410,
-					null, null, null,
-					Images.DOWN,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded && this.pointer.y < this.cells.at(-1).y && !this.GA.isFinish) {
-							this.pointer.y += Source.cellHeight;
-						}
-					}
-				);
-
-				new Button(
-					this,
-					this.cameras.main.centerX + 220,
-					this.cameras.main.centerY + 365,
-					null, null, null,
-					Images.ENTER,
-					null, null, null,
-					() => {
-						if (this.isGameSceneBuilded ) {
-							let pos =
-							(Source.cols * (this.pointer.y - this.cells[0].y)) / Source.cellHeight +
-							(this.pointer.x - this.cells[0].x) / Source.cellWidth;
-						this.GA.onCellClicked(this.cells[pos]);
-						}
-						
-					}
-				);
-			}
-
+		if (window.innerWidth < window.innerHeight) {
 
 			new Button(
 				this,
-				(window.innerWidth > window.innerHeight ? this.cameras.main.centerX - 5 : this.cameras.main.centerX - 240),
-				(window.innerWidth > window.innerHeight ? this.cameras.main.centerY + 350 : this.cameras.main.centerY + 260),
+				this.cameras.main.centerX - 130,
+				this.cameras.main.centerY + 365,
 				null, null, null,
-				Images.BUTTON_HOME,
+				Images.LEFT,
 				null, null, null,
 				() => {
-					this.SM.stopSoundTreck();
-					this.isGameSceneBuilded =  false;
-					this.pressButtonX();
-					//this.scene.restart();
-					this.scene.start("Start");
+					if (this.isGameSceneBuilded && this.pointer.x > this.cells[0].x && !this.GA.isFinish) {
+						this.pointer.x -= Source.cellWidth;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX + 70,
+				this.cameras.main.centerY + 365,
+				null, null, null,
+				Images.RIGHT,
+				null, null, null,
+				() => {
+					if (this.isGameSceneBuilded && this.pointer.x < this.cells.at(-1).x && !this.GA.isFinish) {
+						this.pointer.x += Source.cellWidth;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX - 30,
+				this.cameras.main.centerY + 325,
+				null, null, null,
+				Images.UP,
+				null, null, null,
+				() => {
+					if (this.isGameSceneBuilded && this.pointer.y > this.cells[0].y && !this.GA.isFinish) {
+						this.pointer.y -= Source.cellHeight;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX - 30,
+				this.cameras.main.centerY + 410,
+				null, null, null,
+				Images.DOWN,
+				null, null, null,
+				() => {
+					if (this.isGameSceneBuilded && this.pointer.y < this.cells.at(-1).y && !this.GA.isFinish) {
+						this.pointer.y += Source.cellHeight;
+					}
+				}
+			);
+
+			new Button(
+				this,
+				this.cameras.main.centerX + 220,
+				this.cameras.main.centerY + 365,
+				null, null, null,
+				Images.ENTER,
+				null, null, null,
+				() => {
+					if (this.isGameSceneBuilded) {
+						let pos =
+							(Source.cols * (this.pointer.y - this.cells[0].y)) / Source.cellHeight +
+							(this.pointer.x - this.cells[0].x) / Source.cellWidth;
+						this.GA.onCellClicked(this.cells[pos]);
+					}
 
 				}
 			);
-				
+		}
+
+
+		new Button(
+			this,
+			(window.innerWidth > window.innerHeight ? this.cameras.main.centerX - 5 : this.cameras.main.centerX - 240),
+			(window.innerWidth > window.innerHeight ? this.cameras.main.centerY + 350 : this.cameras.main.centerY + 260),
+			null, null, null,
+			Images.BUTTON_HOME,
+			null, null, null,
+			() => {
+				this.SM.stopSoundTreck();
+				this.isGameSceneBuilded = false;
+				this.pressButtonX();
+				//this.scene.restart();
+				this.scene.start("Start");
+
+			}
+		);
+
 	}
 	pressButtonX() {
 		this.GA.store.length = 0;
@@ -420,14 +431,14 @@ export class GameScene extends Phaser.Scene {
 		this.cells.length = 0;
 	}
 	pressButtonZero() {
-		let centralCell = Math.floor(this.cells.length / 2);
+		//let centralCell = Math.floor(this.cells.length / 2);
 		this.GA.store.length = 0;
 		this.GA.isFinish = false;
 		this.cells.length = 0;
 		this.btnZeroWasPressed = true;
 		this.btnXWasPressed = false;
 		this.BOARD.drawBoard();
-		this.GA.onCellClicked(this.cells[centralCell]);
+		//this.GA.onCellClicked(this.cells[centralCell]);
 	}
 
 }

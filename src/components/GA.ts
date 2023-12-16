@@ -25,7 +25,7 @@ export default class GameAlgoritm {
     bestR: number; // id выбранной ячейки
     maxAttackMadeMovesR: number;
     isFinish: boolean = false;
-    isYourMove: boolean = false;
+    isYourMove: boolean = true;
     isRivalMove: boolean = false;
     templX: any = templateX;
     templZero: any = templateZero;
@@ -89,8 +89,8 @@ export default class GameAlgoritm {
             this.scene.timeMask.destroy();
            this.scene.Timer.paused = false;
 
-            console.log(this.isYourMove)
-            console.log(this.isRivalMove)
+            // console.log(this.isYourMove)
+            // console.log(this.isRivalMove)
             //=========================================================================================
 
             this.scene.createPointer();
