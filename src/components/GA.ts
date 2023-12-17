@@ -41,7 +41,7 @@ export default class GameAlgoritm {
         ) {
             this.scene.pointer.destroy();
 
-            this.scene.sounds.card.play();
+            this.scene.sounds.move.play();
 
             //для крестика "обесцвечиваем" предыдущий нолик
             if (this.store.length % 2 == 0) {

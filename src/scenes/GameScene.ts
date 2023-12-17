@@ -53,9 +53,6 @@ export class GameScene extends Phaser.Scene {
 		this.createTimeBar();
 		this.createTimer();
 		this.starsCount > 0 ? this.Start() : this.getStars();
-		this.SM = new SoundManager(this);
-		this.SM.initSounds();
-
 	}
 
 	getStars() {
@@ -92,7 +89,7 @@ export class GameScene extends Phaser.Scene {
 				window.ysdk.adv.showRewardedVideo({
 					callbacks: {
 						onOpen: () => {
-							this.SM.stopSoundTreck();
+							this.game.sound.pauseAll();
 							console.log('Video ad open.');
 						},
 						onRewarded: () => {
@@ -103,10 +100,12 @@ export class GameScene extends Phaser.Scene {
 						},
 						onClose: () => {
 							this.scene.restart();
+							this.game.sound.resumeAll();
 							console.log('Video ad closed.');
 						},
 						onError: (e: any) => {
 							console.log('Error while open video ad:', e);
+							this.game.sound.resumeAll();
 						}
 					}
 				})
@@ -152,15 +151,12 @@ export class GameScene extends Phaser.Scene {
 						this.createTimeBar();
 					}
 
-
-
 				} else {
 					!this.isRu ? this.textInTimeBar = '    Ваш ход' : this.textInTimeBar = 'Your move';
 					this.createTimeBar();
 					this.Timer.paused = false;
 				}
 				this.isGameSceneBuilded = true;
-
 
 			}
 		)
@@ -253,7 +249,7 @@ export class GameScene extends Phaser.Scene {
 	createEndSessionStart() {
 		this.textForMove.destroy();
 		if (this.GA.isYourMove) {
-			this.sounds.timeout.play()
+			this.sounds.loss.play()
 		} else {
 			this.sounds.complete.play()
 		}
@@ -278,9 +274,7 @@ export class GameScene extends Phaser.Scene {
 			Images.CONFIRM,
 			null, null, null,
 			() => {
-				this.SM.stopSoundTreck();
 				this.pressButtonX();
-				//this.scene.restart();
 				this.scene.start("Start");
 			}
 		)
@@ -307,9 +301,9 @@ export class GameScene extends Phaser.Scene {
 	}
 	createSounds() {
 		this.sounds = {
-			complete: this.sound.add("complete"),
-			timeout: this.sound.add("timeout"),
-			card: this.sound.add("card"),
+			complete: this.sound.add(Images.COMPLETE),
+			loss: this.sound.add(Images.LOSS),
+			move: this.sound.add(Images.MOVE),
 		};
 	}
 
@@ -321,11 +315,9 @@ export class GameScene extends Phaser.Scene {
 				Images.POINTER
 			)
 			.setOrigin(0, 0);
-
 	}
 
 	createControl() {
-
 
 		if (window.innerWidth < window.innerHeight) {
 
@@ -413,10 +405,8 @@ export class GameScene extends Phaser.Scene {
 			Images.BUTTON_HOME,
 			null, null, null,
 			() => {
-				this.SM.stopSoundTreck();
 				this.isGameSceneBuilded = false;
 				this.pressButtonX();
-				//this.scene.restart();
 				this.scene.start("Start");
 
 			}
@@ -431,14 +421,12 @@ export class GameScene extends Phaser.Scene {
 		this.cells.length = 0;
 	}
 	pressButtonZero() {
-		//let centralCell = Math.floor(this.cells.length / 2);
 		this.GA.store.length = 0;
 		this.GA.isFinish = false;
 		this.cells.length = 0;
 		this.btnZeroWasPressed = true;
 		this.btnXWasPressed = false;
 		this.BOARD.drawBoard();
-		//this.GA.onCellClicked(this.cells[centralCell]);
 	}
 
 }

@@ -168,13 +168,13 @@
       },
       {
         "type": "audio",
-        "key": "timeout",
-        "url": "./assets/sounds/timeout.mp3"
+        "key": "loss",
+        "url": "./assets/sounds/loss.mp3"
       },
       {
         "type": "audio",
-        "key": "card",
-        "url": "./assets/sounds/card.mp3"
+        "key": "move",
+        "url": "./assets/sounds/move.mp3"
       }
     ]
   }

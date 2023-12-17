@@ -1,5 +1,4 @@
 import Button from '../components/Button';
-import SoundManager from '../components/SoundManager';
 import { Images } from '../utils/const';
 import store from '../store';
 
@@ -13,8 +12,7 @@ export class StartScene extends Phaser.Scene {
 	winnersButton: Button;
 	confirmButton: Button;
 	popUpWindow: any;
-	isSoundTreck: boolean;
-	SM: SoundManager;
+	isMusicEnabled: boolean = localStorage.getItem('isSoundEnable') === 'true' ? true : false;
 	constructor() {
 		super({
 			key: 'Start'
@@ -26,8 +24,9 @@ export class StartScene extends Phaser.Scene {
 		this.createBackground();
 		this.createNameGame();
 		this.createMainMenu();
-		this.SM = new SoundManager(this);
-		this.SM.initSounds();
+		if (this.isMusicEnabled) {
+			this.game.sound.resumeAll();
+		}
 	};
 
 	createBackground() {
@@ -93,16 +92,16 @@ export class StartScene extends Phaser.Scene {
 			Images.PLAY,
 			null, null, null,
 			() => {
-				this.SM.stopSoundTreck();
 				//@ts-ignore
 				window.ysdk.adv.showFullscreenAdv(
 					{
 						callbacks: {
 							onClose: (() => {
 								this.scene.start("Game");
+								this.game.sound.resumeAll();
 							}),
 							onOpen: (() => {
-								this.SM.stopSoundTreck();
+								this.game.sound.pauseAll();
 							})
 						}
 					}
@@ -121,10 +120,13 @@ export class StartScene extends Phaser.Scene {
 				this.winnersButton.container.destroy();
 				this.playButton.container.destroy();
 				this.settingsButton.container.destroy();
-				this.popUpWindow = this.add.sprite(this.cameras.main.centerX - 300,
+
+				this.popUpWindow = this.add.sprite(
+					this.cameras.main.centerX - 300,
 					this.cameras.main.centerY - 240,
 					Images.MESS).setOrigin(0, 0)
 					.setAlpha(0.8);
+					
 				this.createlangButton();
 				this.createSoundButton();
 				this.createConfirmButton()
@@ -176,13 +178,14 @@ export class StartScene extends Phaser.Scene {
 			20,
 			data === 'true' ? '' : '     X',
 			() => {
-				if (this.SM.isMusic) {
+				if (this.isMusicEnabled) {
+					this.game.sound.pauseAll();
 					localStorage.setItem('isSoundEnable', 'false');
-					this.SM.stopSoundTreck();
 				} else {
+					this.game.sound.resumeAll();
 					localStorage.setItem('isSoundEnable', 'true');
-					this.SM.playSoundTreck();
 				}
+				this.isMusicEnabled = !this.isMusicEnabled;
 				this.soundButton.container.destroy();
 				this.createSoundButton();
 			}

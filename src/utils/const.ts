@@ -32,5 +32,7 @@ export enum Images {
 	CONTOUR = 'contour',
 	THEME = 'theme',
 	COMPLETE = 'complete',
-	MESS = 'mess'
+	MESS = 'mess',
+	MOVE = 'move',
+	LOSS = 'loss'
 }

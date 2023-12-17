@@ -11,6 +11,5 @@ const store: IStore = {
      
 }
 
-
 export default store;
 
